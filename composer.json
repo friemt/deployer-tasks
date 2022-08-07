@@ -6,7 +6,7 @@
   "autoload": {
     "psr-4": {
       "Friemt\\Deployer\\Tasks\\": "src/task/"
-    },
+    }
   },
   "config": {
     "optimize-autoloader": true,
