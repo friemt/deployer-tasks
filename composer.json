@@ -1,0 +1,25 @@
+{
+  "name": "friemt/deployer-tasks",
+  "description": "Additional and enhanced tasks not available for Deployer out of the box.",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Friemt\\Deployer\\Tasks\\": "src/task/"
+    },
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "preferred-install": "dist",
+    "sort-packages": true
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true,
+  "require": {
+    "php": ">=7.4",
+    "deployer/deployer": "^7.0",
+    "symfony/console": "^5.4 || ^6.0"
+  },
+  "require-dev": {},
+  "scripts": {}
+}
