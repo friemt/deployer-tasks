@@ -6,9 +6,13 @@
   "autoload": {
     "psr-4": {
       "Friemt\\Deployer\\Tasks\\": "src/task/"
-    }
+    },
+    "files": [
+      "src/autoload.php"
+    ]
   },
   "config": {
+    "lock": false,
     "optimize-autoloader": true,
     "preferred-install": "dist",
     "sort-packages": true
