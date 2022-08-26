@@ -7,6 +7,15 @@ use DateTimeInterface;
 use DateTimeZone;
 use Symfony\Component\Console\Helper\Table;
 use Throwable;
+use function Deployer\currentHost;
+use function Deployer\get;
+use function Deployer\output;
+use function Deployer\parse;
+use function Deployer\run;
+use function Deployer\set;
+use function Deployer\task;
+use function Deployer\upload;
+use function Deployer\writeln;
 
 set('template_history', '{{deploy_path}}/.dep/template_log');
 set(

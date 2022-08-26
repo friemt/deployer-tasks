@@ -3,6 +3,16 @@
 namespace Friemt\Deployer\Tasks;
 
 use Symfony\Component\Console\Helper\Table;
+use function Deployer\currentHost;
+use function Deployer\get;
+use function Deployer\output;
+use function Deployer\parse;
+use function Deployer\run;
+use function Deployer\set;
+use function Deployer\task;
+use function Deployer\test;
+use function Deployer\which;
+use function Deployer\writeln;
 use function preg_match;
 
 set('bin/crontab', fn(): string => which('crontab'));

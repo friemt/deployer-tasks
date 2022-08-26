@@ -7,6 +7,13 @@ use DateTimeInterface;
 use DateTimeZone;
 use Symfony\Component\Console\Helper\Table;
 use Throwable;
+use function Deployer\currentHost;
+use function Deployer\get;
+use function Deployer\output;
+use function Deployer\run;
+use function Deployer\set;
+use function Deployer\task;
+use function Deployer\writeln;
 
 set('runonce_history', '{{deploy_path}}/.dep/runonce_log');
 set(
