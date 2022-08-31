@@ -168,7 +168,7 @@ set('template:remote:configured', function (): array {
     }
 
     $history = run('tail -n 1 {{template_history}}');
-    $entries = json_decode(trim($history), true, flags: JSON_THROW_ON_ERROR);
+    $entries = json_decode(trim($history), true, 512, JSON_THROW_ON_ERROR);
 
     writeln(sprintf('<info>Remote templates:</info> %1$d', count($entries)));
 
