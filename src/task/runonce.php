@@ -13,6 +13,7 @@ use function Deployer\output;
 use function Deployer\run;
 use function Deployer\set;
 use function Deployer\task;
+use function Deployer\test;
 use function Deployer\writeln;
 
 set('runonce_history', '{{deploy_path}}/.dep/runonce_log');
