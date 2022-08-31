@@ -14,6 +14,7 @@ use function Deployer\parse;
 use function Deployer\run;
 use function Deployer\set;
 use function Deployer\task;
+use function Deployer\test;
 use function Deployer\upload;
 use function Deployer\writeln;
 
