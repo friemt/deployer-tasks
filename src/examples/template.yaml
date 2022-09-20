@@ -6,8 +6,8 @@ config:
           targets: []
 
         # Will be deployed on all hosts. Use deployer variables to substitute with host specific values.
-        - source: 'resources/supervisor/project_{{stage}}.conf'
-          dest: '/var/tmp/supervisor/project_{{stage}}.conf'
+        - source: 'resources/supervisor/project_all.conf'
+          dest: '/var/tmp/supervisor/project_all.conf'
 
         # Will be deployed on hosts with an alias, hostname or stage contained in targets.
         - source: 'resources/supervisor/project_staging.conf'
