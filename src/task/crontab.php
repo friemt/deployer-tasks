@@ -30,12 +30,12 @@ task('crontab:check', function (): void {
     $remote = get('crontab:remote:configured');
     $all = array_unique(array_merge($configured, $remote));
 
-    $table = array_map(function (string $tab) use ($configured, $remote): array {
-        if (in_array($tab, $configured) && in_array($tab, $remote)) {
+    $table = array_map(static function (string $tab) use ($configured, $remote): array {
+        if (in_array($tab, $configured, true) && in_array($tab, $remote, true)) {
             return ['<info>OK</info>', $tab];
         }
 
-        if (in_array($tab, $configured)) {
+        if (in_array($tab, $configured, true)) {
             return ['<comment>NEW</comment>', $tab];
         }
 
@@ -96,7 +96,7 @@ set('crontab:local:configured', function (): array {
     $jobs = get('crontab_jobs', []) ?? [];
     $destinations = get('crontab_target_lookup');
 
-    $filtered = array_filter($jobs, function (array $job) use ($destinations): bool {
+    $filtered = array_filter($jobs, static function (array $job) use ($destinations): bool {
         $command = $job['command'] ?? '';
 
         if (false === is_string($command) || '' === trim($command)) {
@@ -114,7 +114,7 @@ set('crontab:local:configured', function (): array {
 
     writeln(sprintf('<info>Local tabs:</info> %1$d', count($filtered)));
 
-    return array_values(array_map(fn(array $job): string => trim(parse($job['command'])), $filtered));
+    return array_values(array_map(static fn(array $job): string => trim(parse($job['command'])), $filtered));
 });
 
 set('crontab:remote:configured', function (): array {

@@ -66,7 +66,7 @@ task('runonce:run', function (): void {
 
     foreach ($configured as $key => $job) {
         if (array_key_exists($key, $remote)) {
-            $succeeded = array_filter($remote[$key], fn(array $run) => 'success' === $run['status']);
+            $succeeded = array_filter($remote[$key], static fn(array $run) => 'success' === $run['status']);
 
             if (count($succeeded) > 0) {
                 writeln(sprintf('%1$s: already succeeded', $key));
@@ -87,7 +87,7 @@ task('runonce:run', function (): void {
             'key' => $key,
             'output' => null,
             'status' => null,
-            'time' => (new DateTime('now', new DateTimeZone('UTC')))->format(DateTimeInterface::ISO8601),
+            'time' => (new DateTime('now', new DateTimeZone('UTC')))->format(DateTimeInterface::RFC3339),
         ];
 
         try {
@@ -110,7 +110,7 @@ task('runonce:run', function (): void {
             $meta['output'] = substr($meta['output'], 0, 64);
         }
 
-        run(sprintf('echo \'%1$s\' >> {{runonce_history}}', json_encode($meta)));
+        run(sprintf('echo \'%1$s\' >> {{runonce_history}}', json_encode($meta, JSON_THROW_ON_ERROR)));
     }
 });
 
@@ -120,7 +120,7 @@ set('runonce:local:configured', function (): array {
     $jobs = get('runonce_jobs', []) ?? [];
     $destinations = get('runonce_target_lookup');
 
-    $filtered = array_filter($jobs, function (array $job) use ($destinations): bool {
+    $filtered = array_filter($jobs, static function (array $job) use ($destinations): bool {
         $command = $job['command'] ?? '';
 
         if (false === is_string($command) || '' === trim($command)) {
@@ -139,7 +139,7 @@ set('runonce:local:configured', function (): array {
     writeln(sprintf('<info>Local jobs:</info> %1$d', count($filtered)));
 
     return array_map(
-        fn(array $job): array => [
+        static fn(array $job): array => [
             'command' => trim($job['command']),
             'verbose' => $job['verbose'] ?? false,
             'retry' => $job['retry'] ?? false,
@@ -160,7 +160,7 @@ set('runonce:remote:history', function (): array {
     $entries = [];
 
     foreach ($lines as $line) {
-        $data = json_decode($line, true);
+        $data = json_decode($line, true, 512, JSON_THROW_ON_ERROR);
 
         $entries[$data['key']][$data['time']] = $data;
     }

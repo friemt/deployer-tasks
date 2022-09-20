@@ -126,7 +126,7 @@ set('template:local:configured', function (): array {
     $jobs = get('template_jobs', []) ?? [];
     $destinations = get('template_target_lookup');
 
-    $filtered = array_filter($jobs, function (array $job) use ($destinations): bool {
+    $filtered = array_filter($jobs, static function (array $job) use ($destinations): bool {
         if (false === is_string($job['source']) || false === is_string($job['dest']) || '' === trim($job['dest'])) {
             return false;
         }
