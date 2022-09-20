@@ -101,7 +101,13 @@ task('template:sync', function (): void {
         }
 
         try {
-            upload($tmp, $destination, ['flags' => '-azcP']);
+            $options = [];
+
+            if (currentHost()->has('template_rsync_path')) {
+                $options = ['--rsync-path', currentHost()->get('template_rsync_path')];
+            }
+
+            upload($tmp, $destination, ['flags' => '-azcP', 'options' => $options]);
 
             $time = (new DateTime('now', new DateTimeZone('UTC')))->format(DateTimeInterface::RFC3339);
 
