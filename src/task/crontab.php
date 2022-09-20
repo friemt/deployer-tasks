@@ -22,7 +22,11 @@ set('crontab_stage', fn(): string => currentHost()->getLabels()['stage']);
 set('crontab_user', '{{remote_user}}');
 set(
     'crontab_target_lookup',
-    fn(): array => [currentHost()->getAlias(), currentHost()->getHostname(), currentHost()->getLabels()['stage']],
+    fn(): array => array_filter([
+        currentHost()->getAlias(),
+        currentHost()->getHostname(),
+        null !== currentHost()->getLabels() ? currentHost()->getLabels()['stage'] : null,
+    ]),
 );
 
 task('crontab:check', function (): void {

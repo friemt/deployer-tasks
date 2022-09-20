@@ -21,7 +21,11 @@ use function Deployer\writeln;
 set('template_history', '{{deploy_path}}/.dep/template_log');
 set(
     'template_target_lookup',
-    fn(): array => [currentHost()->getAlias(), currentHost()->getHostname(), currentHost()->getLabels()['stage']],
+    fn(): array => array_filter([
+        currentHost()->getAlias(),
+        currentHost()->getHostname(),
+        null !== currentHost()->getLabels() ? currentHost()->getLabels()['stage'] : null,
+    ]),
 );
 
 task('template:check', function (): void {

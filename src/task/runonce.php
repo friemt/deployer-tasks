@@ -19,7 +19,11 @@ use function Deployer\writeln;
 set('runonce_history', '{{deploy_path}}/.dep/runonce_log');
 set(
     'runonce_target_lookup',
-    fn(): array => [currentHost()->getAlias(), currentHost()->getHostname(), currentHost()->getLabels()['stage']],
+    fn(): array => array_filter([
+        currentHost()->getAlias(),
+        currentHost()->getHostname(),
+        null !== currentHost()->getLabels() ? currentHost()->getLabels()['stage'] : null,
+    ]),
 );
 
 task('runonce:check', function (): void {
