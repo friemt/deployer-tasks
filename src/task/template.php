@@ -104,6 +104,8 @@ task('template:sync', function (): void {
             continue;
         }
 
+        chmod($tmp, $template['chmod']);
+
         try {
             $options = [];
 
@@ -165,6 +167,7 @@ set('template:local:configured', function (): array {
 
         $templates[$destination] = [
             'source' => parse($template['source']),
+            'chmod' => $template['chmod'] ?? 0744,
         ];
     }
 

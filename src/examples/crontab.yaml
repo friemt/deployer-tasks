@@ -6,6 +6,7 @@ config:
 
         # Will be deployed on all hosts. Use deployer variables to substitute with host specific values.
         -   command: '5 0 * 8 * cd {{current_path}} && whoami'
+
         # Will be deployed on hosts with an alias, hostname or stage contained in targets.
         -   command: '0 0,12 1 */2 * whoami'
             targets: [ 'staging' ]
