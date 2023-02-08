@@ -114,3 +114,31 @@ after('deploy:symlink', 'template:sync');
 |----------------|---------------------------------------------------------------------------------|
 | template:check | checks the target system against the configuration and displays any differences |
 | template:sync  | syncs the configuration to the target system, adding and updating files         |
+
+## cleanup
+
+Remove obsolete files and folders from older releases.
+
+```php
+# deploy.php
+# ...
+
+import('recipe/cleanup.php');
+# or
+import('task/cleanup.php');
+
+# When using the task instead of the recipe, add the run task to the deployment manually:
+after('deploy', 'cleanup:paths');
+```
+
+### variables
+
+| variable      | description                                                           | default         |
+|---------------|-----------------------------------------------------------------------|-----------------|
+| cleanup_paths | A list of paths, relative to the release dir, that should be removed. | `['var/cache']` |
+
+### tasks
+
+| task          | description                                                                   |
+|---------------|-------------------------------------------------------------------------------|
+| cleanup:paths | Checks every release for the configured paths and removes them if they exist. |
