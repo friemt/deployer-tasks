@@ -4,7 +4,7 @@ config:
         - source:
           dest:
           targets: []
-          chmod: 0744
+          chmod: 0644
 
         # Will be deployed on all hosts. Use deployer variables to substitute with host specific values.
         - source: 'resources/supervisor/project_all.conf'
