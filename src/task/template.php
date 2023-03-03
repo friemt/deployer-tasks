@@ -167,7 +167,7 @@ set('template:local:configured', function (): array {
 
         $templates[$destination] = [
             'source' => parse($template['source']),
-            'chmod' => $template['chmod'] ?? 0744,
+            'chmod' => $template['chmod'] ?? 0644,
         ];
     }
 
