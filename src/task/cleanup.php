@@ -26,17 +26,20 @@ task('cleanup:paths', function (): void {
         $withinPath = sprintf('{{deploy_path}}/releases/%s', $release);
         within($withinPath, function () use ($sudo, $release, $cleanupPaths): void {
             foreach ($cleanupPaths as $cleanupPath) {
-                if (test(sprintf('[ -e %s ]', $cleanupPath))) {
-                    run(sprintf('%s rm -rf %s', $sudo, $cleanupPath));
-                } else {
+                writeln('Removing "%1$s"', $cleanupPath);
+                if (false === test(sprintf('[ -e %s ]', $cleanupPath))) {
                     writeln(
                         sprintf(
-                            'Skipped "{{deploy_path}}/releases/%s/%s" because the path does not exist.',
+                            '<comment>Skipped "{{deploy_path}}/releases/%s/%s" because the path does not exist.</comment>',
                             $release,
                             $cleanupPath,
                         ),
                     );
+                    continue;
                 }
+
+                run(sprintf('%s rm -rf %s', $sudo, $cleanupPath));
+                writeln('<info>Removed "%1$s"</info>', $cleanupPath);
             }
         });
     }
