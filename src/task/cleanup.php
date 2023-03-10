@@ -13,7 +13,7 @@ use function Deployer\writeln;
 set('cleanup_paths', ['var/cache']);
 
 task('cleanup:paths', function (): void {
-    $currentRelease = basename(get('release_or_current_path'));
+    $currentRelease = basename(within("{{release_or_current_path}}", fn() => run('pwd -P')));
     $releases = get('releases_list');
     $sudo = get('cleanup_use_sudo') ? 'sudo' : '';
     $cleanupPaths = get('cleanup_paths');
