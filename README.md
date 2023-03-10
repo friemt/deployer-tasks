@@ -133,12 +133,12 @@ after('deploy', 'cleanup:paths');
 
 ### variables
 
-| variable      | description                                                           | default         |
-|---------------|-----------------------------------------------------------------------|-----------------|
-| cleanup_paths | A list of paths, relative to the release dir, that should be removed. | `['var/cache']` |
+| variable      | description                                                            | default       |
+|---------------|------------------------------------------------------------------------|---------------|
+| cleanup_paths | A list of paths, relative to the release dir, which should be removed. | `'var/cache'` |
 
 ### tasks
 
-| task          | description                                                                   |
-|---------------|-------------------------------------------------------------------------------|
-| cleanup:paths | Checks every release for the configured paths and removes them if they exist. |
+| task          | description                                                                                  |
+|---------------|----------------------------------------------------------------------------------------------|
+| cleanup:paths | Checks every release except current for the configured paths and removes them if they exist. |
