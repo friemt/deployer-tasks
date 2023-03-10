@@ -16,7 +16,7 @@ task('cleanup:paths', function (): void {
     $currentRelease = basename(within("{{release_or_current_path}}", fn() => run('pwd -P')));
     $releases = get('releases_list');
     $sudo = get('cleanup_use_sudo') ? 'sudo' : '';
-    $cleanupPaths = get('cleanup_paths');
+    $cleanupPaths = get('cleanup_paths', []) ?? [];
 
     foreach ($releases as $release) {
         if ($release === $currentRelease) {
