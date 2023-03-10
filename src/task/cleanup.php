@@ -13,7 +13,7 @@ use function Deployer\writeln;
 set('cleanup_paths', ['var/cache']);
 
 task('cleanup:paths', function (): void {
-    $currentRelease = basename(within("{{release_or_current_path}}", fn() => run('pwd -P')));
+    $currentRelease = basename(within('{{release_or_current_path}}', fn() => run('pwd -P')));
     $releases = get('releases_list');
     $sudo = get('cleanup_use_sudo') ? 'sudo' : '';
     $cleanupPaths = get('cleanup_paths', []) ?? [];
@@ -23,13 +23,18 @@ task('cleanup:paths', function (): void {
             continue;
         }
 
-        within("{{deploy_path}}/releases/$release", function () use ($sudo, $release, $cleanupPaths): void {
+        $withinPath = sprintf('{{deploy_path}}/releases/%s', $release);
+        within($withinPath, function () use ($sudo, $release, $cleanupPaths): void {
             foreach ($cleanupPaths as $cleanupPath) {
-                if (test("[ -e $cleanupPath ]")) {
-                    run("$sudo rm -rf $cleanupPath");
+                if (test(sprintf('[ -e %s ]', $cleanupPath))) {
+                    run(sprintf('%s rm -rf %s', $sudo, $cleanupPath));
                 } else {
                     writeln(
-                        "Skipped '{{deploy_path}}/releases/$release/$cleanupPath' because the path does not exist.",
+                        sprintf(
+                            'Skipped "{{deploy_path}}/releases/%s/%s" because the path does not exist.',
+                            $release,
+                            $cleanupPath,
+                        ),
                     );
                 }
             }
