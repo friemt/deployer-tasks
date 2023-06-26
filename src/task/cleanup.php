@@ -2,6 +2,8 @@
 
 namespace Friemt\Deployer\Tasks;
 
+use Deployer\Exception\RunException;
+use Exception;
 use function Deployer\get;
 use function Deployer\run;
 use function Deployer\set;
@@ -24,22 +26,26 @@ task('cleanup:paths', function (): void {
         }
 
         $withinPath = sprintf('{{deploy_path}}/releases/%s', $release);
-        within($withinPath, function () use ($sudo, $release, $cleanupPaths): void {
+        within($withinPath, function () use ($sudo, $release, $cleanupPaths, $withinPath): void {
+            $resolvedWithinPath = parse($withinPath);
+
             foreach ($cleanupPaths as $cleanupPath) {
-                writeln('Removing "%1$s"', $cleanupPath);
+                $absoluteRemovePath = sprintf('%1$s/%2$s', $resolvedWithinPath, $cleanupPath);
                 if (false === test(sprintf('[ -e %s ]', $cleanupPath))) {
-                    writeln(
-                        sprintf(
-                            '<comment>Skipped "{{deploy_path}}/releases/%s/%s" because the path does not exist.</comment>',
-                            $release,
-                            $cleanupPath,
-                        ),
-                    );
+                    writeln(sprintf('Skipped "<comment>%1$s</comment>". The path does not exist.', $absoluteRemovePath));
                     continue;
                 }
 
-                run(sprintf('%s rm -rf %s', $sudo, $cleanupPath));
-                writeln('<info>Removed "%1$s"</info>', $cleanupPath);
+                writeln(sprintf('Removing "%1$s"', $absoluteRemovePath));
+
+                try {
+                    run(sprintf('%s rm -rf %s', $sudo, $cleanupPath));
+                    writeln(sprintf('Removed "<info>%1$s</info>".', $absoluteRemovePath));
+                } catch (RunException $exception) {
+                    writeln(sprintf('Failed to remove "<comment>%1$s</comment>". %2$s', $absoluteRemovePath, $exception->getErrorOutput()));
+                } catch (Exception $exception) {
+                    writeln(sprintf('Failed to remove "<comment>%1$s</comment>".', $absoluteRemovePath));
+                }
             }
         });
     }
