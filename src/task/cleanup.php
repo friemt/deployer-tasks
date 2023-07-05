@@ -5,7 +5,6 @@ namespace Friemt\Deployer\Tasks;
 use Deployer\Exception\RunException;
 use Exception;
 use function Deployer\get;
-use function Deployer\parse;
 use function Deployer\run;
 use function Deployer\set;
 use function Deployer\task;
