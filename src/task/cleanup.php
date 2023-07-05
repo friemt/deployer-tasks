@@ -9,23 +9,17 @@ use function Deployer\run;
 use function Deployer\set;
 use function Deployer\task;
 use function Deployer\test;
-use function Deployer\within;
 use function Deployer\writeln;
 
 set('cleanup_paths', ['var/cache']);
 
 task('cleanup:paths', function (): void {
-    $currentRelease = basename(within('{{release_or_current_path}}', fn() => run('pwd -P')));
     $releases = get('releases_list');
     $keep = get('keep_releases', 0)
     $sudo = get('cleanup_use_sudo') ? 'sudo' : '';
     $cleanupPaths = get('cleanup_paths', []) ?? [];
 
-    foreach (array_slice($releases, 0, $keep) as $release) {
-        if ($release === $currentRelease) {
-            continue;
-        }
-
+    foreach (array_slice($releases, 1, $keep - 1) as $release) {
         $releasePath = sprintf('{{deploy_path}}/releases/%1$s', $release);
 
         if (false === test(sprintf('[ -e %1$s ]', $releasePath))) {
@@ -46,7 +40,7 @@ task('cleanup:paths', function (): void {
             writeln(sprintf('Removing "%1$s"', $absoluteRemovePath));
 
             try {
-                run(sprintf('%1$s rm -rf %2$s', $sudo, $cleanupPath));
+                run(sprintf('%1$s rm -rf %2$s', $sudo, $absoluteRemovePath));
                 writeln(sprintf('Removed "<info>%1$s</info>".', $absoluteRemovePath));
             } catch (RunException $exception) {
                 writeln(sprintf('Failed to remove "<comment>%1$s</comment>". %2$s', $absoluteRemovePath, $exception->getErrorOutput()));
