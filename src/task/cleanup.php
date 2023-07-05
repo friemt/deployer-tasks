@@ -19,6 +19,12 @@ task('cleanup:paths', function (): void {
     $sudo = get('cleanup_use_sudo') ? 'sudo' : '';
     $cleanupPaths = get('cleanup_paths', []) ?? [];
 
+    if ($keep <= 0 || count($cleanupPaths) <= 0) {
+        writeln('Nothing to remove.');
+
+        return;
+    }
+
     foreach (array_slice($releases, 1, $keep - 1) as $release) {
         $releasePath = sprintf('{{deploy_path}}/releases/%1$s', $release);
 
