@@ -17,10 +17,11 @@ set('cleanup_paths', ['var/cache']);
 task('cleanup:paths', function (): void {
     $currentRelease = basename(within('{{release_or_current_path}}', fn() => run('pwd -P')));
     $releases = get('releases_list');
+    $keep = get('keep_releases', 0)
     $sudo = get('cleanup_use_sudo') ? 'sudo' : '';
     $cleanupPaths = get('cleanup_paths', []) ?? [];
 
-    foreach ($releases as $release) {
+    foreach (array_slice($releases, 0, $keep) as $release) {
         if ($release === $currentRelease) {
             continue;
         }
@@ -29,6 +30,7 @@ task('cleanup:paths', function (): void {
 
         if (false === test(sprintf('[ -e %1$s ]', $releasePath))) {
             writeln(sprintf('Skipped "<comment>%1$s</comment>". The path does not exist.', $releasePath));
+
             continue;
         }
 
