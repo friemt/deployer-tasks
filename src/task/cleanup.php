@@ -15,7 +15,7 @@ set('cleanup_paths', ['var/cache']);
 
 task('cleanup:paths', function (): void {
     $releases = get('releases_list');
-    $keep = get('keep_releases', 0)
+    $keep = get('keep_releases', 0);
     $sudo = get('cleanup_use_sudo') ? 'sudo' : '';
     $cleanupPaths = get('cleanup_paths', []) ?? [];
 
