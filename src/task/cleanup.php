@@ -5,49 +5,54 @@ namespace Friemt\Deployer\Tasks;
 use Deployer\Exception\RunException;
 use Exception;
 use function Deployer\get;
-use function Deployer\parse;
 use function Deployer\run;
 use function Deployer\set;
 use function Deployer\task;
 use function Deployer\test;
-use function Deployer\within;
 use function Deployer\writeln;
 
 set('cleanup_paths', ['var/cache']);
 
 task('cleanup:paths', function (): void {
-    $currentRelease = basename(within('{{release_or_current_path}}', fn() => run('pwd -P')));
     $releases = get('releases_list');
+    $keep = get('keep_releases', 0)
     $sudo = get('cleanup_use_sudo') ? 'sudo' : '';
     $cleanupPaths = get('cleanup_paths', []) ?? [];
 
-    foreach ($releases as $release) {
-        if ($release === $currentRelease) {
+    if ($keep <= 0 || count($cleanupPaths) <= 0) {
+        writeln('Nothing to remove.');
+
+        return;
+    }
+
+    foreach (array_slice($releases, 1, $keep - 1) as $release) {
+        $releasePath = sprintf('{{deploy_path}}/releases/%1$s', $release);
+
+        if (false === test(sprintf('[ -e %1$s ]', $releasePath))) {
+            writeln(sprintf('Skipped "<comment>%1$s</comment>". The path does not exist.', $releasePath));
+
             continue;
         }
 
-        $withinPath = sprintf('{{deploy_path}}/releases/%s', $release);
-        within($withinPath, function () use ($sudo, $release, $cleanupPaths, $withinPath): void {
-            $resolvedWithinPath = parse($withinPath);
+        foreach ($cleanupPaths as $cleanupPath) {
+            $absolutePath = sprintf('%1$s/%2$s', $releasePath, $cleanupPath);
 
-            foreach ($cleanupPaths as $cleanupPath) {
-                $absoluteRemovePath = sprintf('%1$s/%2$s', $resolvedWithinPath, $cleanupPath);
-                if (false === test(sprintf('[ -e %s ]', $cleanupPath))) {
-                    writeln(sprintf('Skipped "<comment>%1$s</comment>". The path does not exist.', $absoluteRemovePath));
-                    continue;
-                }
+            if (false === test(sprintf('[ -e %1$s ]', $cleanupPath))) {
+                writeln(sprintf('Skipped "<comment>%1$s</comment>". The path does not exist.', $absolutePath));
 
-                writeln(sprintf('Removing "%1$s"', $absoluteRemovePath));
-
-                try {
-                    run(sprintf('%s rm -rf %s', $sudo, $cleanupPath));
-                    writeln(sprintf('Removed "<info>%1$s</info>".', $absoluteRemovePath));
-                } catch (RunException $exception) {
-                    writeln(sprintf('Failed to remove "<comment>%1$s</comment>". %2$s', $absoluteRemovePath, $exception->getErrorOutput()));
-                } catch (Exception $exception) {
-                    writeln(sprintf('Failed to remove "<comment>%1$s</comment>".', $absoluteRemovePath));
-                }
+                continue;
             }
-        });
+
+            writeln(sprintf('Removing "%1$s"', $absolutePath));
+
+            try {
+                run(sprintf('%1$s rm -rf %2$s', $sudo, $absolutePath));
+                writeln(sprintf('Removed "<info>%1$s</info>".', $absolutePath));
+            } catch (RunException $exception) {
+                writeln(sprintf('Failed to remove "<comment>%1$s</comment>". %2$s', $absolutePath, $exception->getErrorOutput()));
+            } catch (Exception $exception) {
+                writeln(sprintf('Failed to remove "<comment>%1$s</comment>".', $absolutePath));
+            }
+        }
     }
 });
