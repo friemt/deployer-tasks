@@ -26,28 +26,32 @@ task('cleanup:paths', function (): void {
             continue;
         }
 
-        $withinPath = sprintf('{{deploy_path}}/releases/%s', $release);
-        within($withinPath, function () use ($sudo, $release, $cleanupPaths, $withinPath): void {
-            $resolvedWithinPath = parse($withinPath);
+        $releasePath = sprintf('{{deploy_path}}/releases/%1$s', $release);
 
-            foreach ($cleanupPaths as $cleanupPath) {
-                $absoluteRemovePath = sprintf('%1$s/%2$s', $resolvedWithinPath, $cleanupPath);
-                if (false === test(sprintf('[ -e %s ]', $cleanupPath))) {
-                    writeln(sprintf('Skipped "<comment>%1$s</comment>". The path does not exist.', $absoluteRemovePath));
-                    continue;
-                }
+        if (false === test(sprintf('[ -e %1$s ]', $releasePath))) {
+            writeln(sprintf('Skipped "<comment>%1$s</comment>". The path does not exist.', $releasePath));
+            continue;
+        }
 
-                writeln(sprintf('Removing "%1$s"', $absoluteRemovePath));
+        foreach ($cleanupPaths as $cleanupPath) {
+            $absoluteRemovePath = sprintf('%1$s/%2$s', $releasePath, $cleanupPath);
 
-                try {
-                    run(sprintf('%s rm -rf %s', $sudo, $cleanupPath));
-                    writeln(sprintf('Removed "<info>%1$s</info>".', $absoluteRemovePath));
-                } catch (RunException $exception) {
-                    writeln(sprintf('Failed to remove "<comment>%1$s</comment>". %2$s', $absoluteRemovePath, $exception->getErrorOutput()));
-                } catch (Exception $exception) {
-                    writeln(sprintf('Failed to remove "<comment>%1$s</comment>".', $absoluteRemovePath));
-                }
+            if (false === test(sprintf('[ -e %1$s ]', $cleanupPath))) {
+                writeln(sprintf('Skipped "<comment>%1$s</comment>". The path does not exist.', $absoluteRemovePath));
+
+                continue;
             }
-        });
+
+            writeln(sprintf('Removing "%1$s"', $absoluteRemovePath));
+
+            try {
+                run(sprintf('%1$s rm -rf %2$s', $sudo, $cleanupPath));
+                writeln(sprintf('Removed "<info>%1$s</info>".', $absoluteRemovePath));
+            } catch (RunException $exception) {
+                writeln(sprintf('Failed to remove "<comment>%1$s</comment>". %2$s', $absoluteRemovePath, $exception->getErrorOutput()));
+            } catch (Exception $exception) {
+                writeln(sprintf('Failed to remove "<comment>%1$s</comment>".', $absoluteRemovePath));
+            }
+        }
     }
 });
