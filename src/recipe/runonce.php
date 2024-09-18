@@ -2,6 +2,6 @@
 
 use function Deployer\after;
 
-require_once 'task/runonce.php';
+require_once __DIR__ . '/../task/runonce.php';
 
 after('deploy:symlink', 'runonce:run');

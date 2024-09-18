@@ -3,7 +3,7 @@
 use function Deployer\after;
 use function Deployer\before;
 
-require_once 'task/supervisor.php';
+require_once __DIR__ . '/../task/supervisor.php';
 
 before('deploy:publish', 'supervisor:stop');
 after('deploy:publish', 'supervisor:start');

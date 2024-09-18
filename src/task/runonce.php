@@ -19,14 +19,14 @@ use function Deployer\writeln;
 set('runonce_history', '{{deploy_path}}/.dep/runonce_log');
 set(
     'runonce_target_lookup',
-    fn(): array => array_filter([
+    static fn(): array => array_filter([
         currentHost()->getAlias(),
         currentHost()->getHostname(),
         null !== currentHost()->getLabels() ? currentHost()->getLabels()['stage'] : null,
     ]),
 );
 
-task('runonce:check', function (): void {
+task('runonce:check', static function (): void {
     $configured = get('runonce:local:configured');
     $remote = get('runonce:remote:history');
     $table = [];
@@ -34,7 +34,7 @@ task('runonce:check', function (): void {
     krsort($configured);
 
     foreach ($configured as $key => $job) {
-        if (false === array_key_exists($key, $remote)) {
+        if (!array_key_exists($key, $remote)) {
             $table[] = [$key, '<comment>NEW</comment>', null, $job['command'] ?? null, null];
 
             continue;
@@ -62,7 +62,7 @@ task('runonce:check', function (): void {
         ->render();
 });
 
-task('runonce:run', function (): void {
+task('runonce:run', static function (): void {
     $configured = get('runonce:local:configured');
     $remote = get('runonce:remote:history');
 
@@ -70,9 +70,9 @@ task('runonce:run', function (): void {
 
     foreach ($configured as $key => $job) {
         if (array_key_exists($key, $remote)) {
-            $succeeded = array_filter($remote[$key], static fn(array $run) => 'success' === $run['status']);
+            $succeeded = array_filter($remote[$key], static fn(array $run): bool => 'success' === $run['status']);
 
-            if (count($succeeded) > 0) {
+            if ($succeeded !== []) {
                 writeln(sprintf('%1$s: already succeeded', $key));
 
                 continue;
@@ -114,11 +114,11 @@ task('runonce:run', function (): void {
             $meta['output'] = substr($meta['output'], 0, 64);
         }
 
-        run(sprintf('echo \'%1$s\' >> {{runonce_history}}', json_encode($meta, JSON_THROW_ON_ERROR)));
+        run(sprintf('echo \'%1$s\' >> "{{runonce_history}}"', json_encode($meta, JSON_THROW_ON_ERROR)));
     }
 });
 
-set('runonce:local:configured', function (): array {
+set('runonce:local:configured', static function (): array {
     writeln('Read local config...');
 
     $jobs = get('runonce_jobs', []) ?? [];
@@ -137,7 +137,7 @@ set('runonce:local:configured', function (): array {
             return true;
         }
 
-        return count(array_intersect($targets, $destinations)) > 0;
+        return array_intersect($targets, $destinations) !== [];
     });
 
     writeln(sprintf('<info>Local jobs:</info> %1$d', count($filtered)));
@@ -152,14 +152,14 @@ set('runonce:local:configured', function (): array {
     );
 });
 
-set('runonce:remote:history', function (): array {
+set('runonce:remote:history', static function (): array {
     writeln('Read remote history...');
 
-    if (false === test('[ -f {{runonce_history}} ]')) {
+    if (!test('[ -f "{{runonce_history}}" ]')) {
         return [];
     }
 
-    $history = run('cat {{runonce_history}}');
+    $history = run('cat "{{runonce_history}}"');
     $lines = array_filter(array_map('trim', explode("\n", $history)));
     $entries = [];
 

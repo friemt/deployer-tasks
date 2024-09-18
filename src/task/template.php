@@ -21,14 +21,14 @@ use function Deployer\writeln;
 set('template_history', '{{deploy_path}}/.dep/template_log');
 set(
     'template_target_lookup',
-    fn(): array => array_filter([
+    static fn(): array => array_filter([
         currentHost()->getAlias(),
         currentHost()->getHostname(),
         null !== currentHost()->getLabels() ? currentHost()->getLabels()['stage'] : null,
     ]),
 );
 
-task('template:check', function (): void {
+task('template:check', static function (): void {
     $configured = get('template:local:configured');
     $remote = get('template:remote:configured');
     $all = array_merge_recursive($configured, $remote);
@@ -63,7 +63,7 @@ task('template:check', function (): void {
         ->render();
 });
 
-task('template:sync', function (): void {
+task('template:sync', static function (): void {
     $configured = get('template:local:configured');
     $remote = get('template:remote:configured');
     $all = array_merge_recursive($configured, $remote);
@@ -129,23 +129,23 @@ task('template:sync', function (): void {
         }
     }
 
-    run(sprintf('echo \'%1$s\' >> {{template_history}}', json_encode($meta, JSON_THROW_ON_ERROR)));
+    run(sprintf('echo \'%1$s\' >> "{{template_history}}"', json_encode($meta, JSON_THROW_ON_ERROR)));
 });
 
-set('template:local:configured', function (): array {
+set('template:local:configured', static function (): array {
     writeln('Read local config...');
 
     $jobs = get('template_jobs', []) ?? [];
     $destinations = get('template_target_lookup');
 
     $filtered = array_filter($jobs, static function (array $job) use ($destinations): bool {
-        if (false === is_string($job['source']) || false === is_string($job['dest']) || '' === trim($job['dest'])) {
+        if (!is_string($job['source']) || !is_string($job['dest']) || '' === trim($job['dest'])) {
             return false;
         }
 
         $source = parse($job['source']);
 
-        if (false === is_file($source) || false === is_readable($source)) {
+        if (!is_file($source) || !is_readable($source)) {
             return false;
         }
 
@@ -155,7 +155,7 @@ set('template:local:configured', function (): array {
             return true;
         }
 
-        return count(array_intersect($targets, $destinations)) > 0;
+        return array_intersect($targets, $destinations) !== [];
     });
 
     writeln(sprintf('<info>Local templates:</info> %1$d', count($filtered)));
@@ -174,14 +174,14 @@ set('template:local:configured', function (): array {
     return $templates;
 });
 
-set('template:remote:configured', function (): array {
+set('template:remote:configured', static function (): array {
     writeln('Read remote config...');
 
-    if (false === test('[ -f {{template_history}} ]')) {
+    if (!test('[ -f "{{template_history}}" ]')) {
         return [];
     }
 
-    $history = run('tail -n 1 {{template_history}}');
+    $history = run('tail -n 1 "{{template_history}}"');
     $entries = json_decode(trim($history), true, 512, JSON_THROW_ON_ERROR);
 
     writeln(sprintf('<info>Remote templates:</info> %1$d', count($entries)));
