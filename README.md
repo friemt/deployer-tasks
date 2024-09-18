@@ -142,3 +142,31 @@ after('deploy', 'cleanup:paths');
 | task          | description                                                                                  |
 |---------------|----------------------------------------------------------------------------------------------|
 | cleanup:paths | Checks every release except current for the configured paths and removes them if they exist. |
+
+## symlink
+
+Creates symlinks anywhere on the host from a given list.
+
+```php
+# deploy.php
+# ...
+
+import('recipe/symlink.php');
+# or
+import('task/symlink.php');
+
+# When using the task instead of the recipe, add the run task to the deployment manually:
+before('deploy:shared', 'symlink:create');
+```
+
+### variables
+
+| variable       | description                                                              | default |
+|----------------|--------------------------------------------------------------------------|---------|
+| symlink_config | list of destination => source pairs. These will be created on deployment | `[]`    |
+
+### tasks
+
+| task           | description                                      |
+|----------------|--------------------------------------------------|
+| symlink:create | creates the given list of symlinks on deployment |
