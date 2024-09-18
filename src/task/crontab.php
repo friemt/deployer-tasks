@@ -15,21 +15,21 @@ use function Deployer\which;
 use function Deployer\writeln;
 use function preg_match;
 
-set('bin/crontab', fn(): string => which('crontab'));
+set('bin/crontab', static fn(): string => which('crontab'));
 set('crontab_backup', '{{deploy_path}}/.dep/crontab.bak');
 set('crontab_marker', '{{application}} {{crontab_stage}}');
-set('crontab_stage', fn(): string => currentHost()->getLabels()['stage']);
+set('crontab_stage', static fn(): string => currentHost()->getLabels()['stage']);
 set('crontab_user', '{{remote_user}}');
 set(
     'crontab_target_lookup',
-    fn(): array => array_filter([
+    static fn(): array => array_filter([
         currentHost()->getAlias(),
         currentHost()->getHostname(),
         null !== currentHost()->getLabels() ? currentHost()->getLabels()['stage'] : null,
     ]),
 );
 
-task('crontab:check', function (): void {
+task('crontab:check', static function (): void {
     $configured = get('crontab:local:configured');
     $remote = get('crontab:remote:configured');
     $all = array_unique(array_merge($configured, $remote));
@@ -53,14 +53,14 @@ task('crontab:check', function (): void {
         ->render();
 });
 
-task('crontab:sync', function (): void {
+task('crontab:sync', static function (): void {
     $configured = get('crontab:local:configured');
     $content = get('crontab:remote:content');
     $marker = get('crontab_marker');
 
     writeln('Checking remote...');
 
-    if (false === isCrontabMarked($content, $marker)) {
+    if (!isCrontabMarked($content, $marker)) {
         writeln('Add missing marker...');
 
         $content = sprintf('%2$s%1$s###> %3$s ###%1$s###< %3$s ###%1$s', "\n", $content, $marker);
@@ -94,7 +94,7 @@ task('crontab:sync', function (): void {
     writeln('<info>Successfully updated tabs!</info>');
 });
 
-set('crontab:local:configured', function (): array {
+set('crontab:local:configured', static function (): array {
     writeln('Read local config...');
 
     $jobs = get('crontab_jobs', []) ?? [];
@@ -103,7 +103,7 @@ set('crontab:local:configured', function (): array {
     $filtered = array_filter($jobs, static function (array $job) use ($destinations): bool {
         $command = $job['command'] ?? '';
 
-        if (false === is_string($command) || '' === trim($command)) {
+        if (!is_string($command) || '' === trim($command)) {
             return false;
         }
 
@@ -113,7 +113,7 @@ set('crontab:local:configured', function (): array {
             return true;
         }
 
-        return count(array_intersect($targets, $destinations)) > 0;
+        return array_intersect($targets, $destinations) !== [];
     });
 
     writeln(sprintf('<info>Local tabs:</info> %1$d', count($filtered)));
@@ -121,13 +121,13 @@ set('crontab:local:configured', function (): array {
     return array_values(array_map(static fn(array $job): string => trim(parse($job['command'])), $filtered));
 });
 
-set('crontab:remote:configured', function (): array {
+set('crontab:remote:configured', static function (): array {
     $content = get('crontab:remote:content');
     $marker = get('crontab_marker');
 
     writeln('Read remote config...');
 
-    if (false === isCrontabMarked($content, $marker)) {
+    if (!isCrontabMarked($content, $marker)) {
         writeln('<comment>Marker not found.</comment>');
 
         return [];
@@ -153,12 +153,12 @@ set('crontab:remote:configured', function (): array {
     return array_values($filtered);
 });
 
-set('crontab:remote:content', function (): string {
+set('crontab:remote:content', static function (): string {
     writeln('Read remote content...');
 
     $command = '{{bin/crontab}} -u {{crontab_user}} -l';
 
-    if (false === test(sprintf('%1$s >> /dev/null 2>&1', $command))) {
+    if (!test(sprintf('%1$s >> /dev/null 2>&1', $command))) {
         return '';
     }
 

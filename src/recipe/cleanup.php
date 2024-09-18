@@ -2,6 +2,6 @@
 
 use function Deployer\after;
 
-require_once 'task/cleanup.php';
+require_once __DIR__ . '/../task/cleanup.php';
 
 after('deploy', 'cleanup:paths');

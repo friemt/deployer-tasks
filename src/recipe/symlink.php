@@ -2,6 +2,6 @@
 
 use function Deployer\before;
 
-require_once 'task/symlink.php';
+require_once __DIR__ . '/../task/symlink.php';
 
 before('deploy:shared', 'symlink:create');

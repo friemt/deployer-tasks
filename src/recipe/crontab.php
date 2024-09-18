@@ -2,6 +2,6 @@
 
 use function Deployer\after;
 
-require_once 'task/crontab.php';
+require_once __DIR__ . '/../task/crontab.php';
 
 after('deploy:symlink', 'crontab:sync');
