@@ -170,3 +170,35 @@ before('deploy:shared', 'symlink:create');
 | task           | description                                      |
 |----------------|--------------------------------------------------|
 | symlink:create | creates the given list of symlinks on deployment |
+
+## supervisor
+
+Stop and start task for supervisor to avoid runtime errors during deployment.
+
+```php
+# deploy.php
+# ...
+
+import('recipe/supervisor.php');
+# or
+import('task/supervisor.php');
+
+# When using the task instead of the recipe, add the run task to the deployment manually:
+before('deploy:publish', 'supervisor:stop');
+after('deploy:publish', 'supervisor:start');
+```
+
+### variables
+
+| variable            | description                                           | default               |
+|---------------------|-------------------------------------------------------|-----------------------|
+| bin/supervisor      | path to the supervisorctl binary on the target system | `which supervisorctl` |
+| supervisor_groups   | list of groups to be stopped, updated and started     | `[]`                  |
+| supervisor_use_sudo | whether the commands are rund with sudo               | `false`               |
+
+### tasks
+
+| task             | description                                                 |
+|------------------|-------------------------------------------------------------|
+| supervisor:stop  | stops the given list of supervisor task groups              |
+| supervisor:start | updates and starts the given list of supervisor task groups |
